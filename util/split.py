@@ -1,6 +1,7 @@
 import random
 
 from scipy.sparse import find
+from sklearn.model_selection import train_test_split
 
 
 def random_holdout(dataset, perc=0.8, seed=1234):
@@ -35,16 +36,23 @@ def temporal_holdout(dataset, ts_threshold):
 
 
 def last_session_out_split(data,
-                           user_key='user_id',
+                           user_key='UserID',
                            session_key='session_id',
                            time_key='ts'):
     """
     Assign the last session of every user to the test set and the remaining ones to the training set
     """
-    sessions = data.sort_values(by=[user_key, time_key]).groupby(user_key)[session_key]
-    last_session = sessions.last()
-    train = data[~data.session_id.isin(last_session.values)].copy()
-    test = data[data.session_id.isin(last_session.values)].copy()
+    # train = data.copy()
+    # test = data.copy()
+    #
+    # test['sequence'] = test['sequence'].apply(lambda x: x[-1])
+    # train['sequence'] = train['sequence'].apply(lambda x: x[:-1])
+    train, test = train_test_split(data, test_size=0.1, random_state=12)
+
+    # sessions = data.sort_values(by=[user_key, time_key]).groupby(user_key)[session_key]
+    # last_session = sessions.last()
+    # train = data[~data['UserID'].isin(last_session.values)].copy()
+    # test = data[data['UserID'].isin(last_session.values)].copy()
     return train, test
 
 

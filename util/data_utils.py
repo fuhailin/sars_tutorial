@@ -11,21 +11,21 @@ import pandas as pd
 def create_seq_db_filter_top_k(path, topk=0, last_months=0):
     file = load_and_adapt(path, last_months=last_months)
 
-    c = Counter(list(file['item_id']))
+    c = Counter(list(file['MovieID']))
 
     if topk > 1:
         keeper = set([x[0] for x in c.most_common(topk)])
-        file = file[file['item_id'].isin(keeper)]
+        file = file[file['MovieID'].isin(keeper)]
 
     # group by session id and concat song_id
-    groups = file.groupby('session_id')
+    groups = file.groupby('UserID')
 
     # convert item ids to string, then aggregate them to lists
-    aggregated = groups['item_id'].agg({'sequence': lambda x: list(map(str, x))})
-    init_ts = groups['ts'].min()
-    users = groups['user_id'].min()  # it's just fast, min doesn't actually make sense
+    aggregated = groups['MovieID'].agg({'sequence': lambda x: list(map(str, x))})
+    init_ts = groups['Timestamp'].min()
+    # users = groups['user_id'].min()  # it's just fast, min doesn't actually make sense
 
-    result = aggregated.join(init_ts).join(users)
+    result = aggregated.join(init_ts)#.join(users)
     result.reset_index(inplace=True)
     return result
 
@@ -69,10 +69,12 @@ def load_and_adapt(path, last_months=0):
         data = pd.read_csv(path, header=0)
     elif file_ext == '.hdf':
         data = pd.read_hdf(path)
+    elif file_ext == '.dat':
+        data = pd.read_csv(path, sep='::', header=None, engine='python')
     else:
         raise ValueError('Unsupported file {} having extension {}'.format(path, file_ext))
 
-    col_names = ['session_id', 'user_id', 'item_id', 'ts'] + data.columns.values.tolist()[4:]
+    col_names = ['UserID', 'MovieID', 'Rating', 'Timestamp'] + data.columns.values.tolist()[4:]
     data.columns = col_names
 
     if last_months > 0:
