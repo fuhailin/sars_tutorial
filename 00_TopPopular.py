@@ -3,7 +3,7 @@ from collections import Counter
 from recommenders.PopularityRecommender import PopularityRecommender
 from util import evaluation
 from util.data_utils import create_seq_db_filter_top_k
-from util.metrics import precision, recall, mrr
+from util.metrics import precision, recall, mrr, ndcg
 from util.split import last_session_out_split
 
 
@@ -39,7 +39,8 @@ recommender.fit(train_data)
 
 METRICS = {'precision': precision,
            'recall': recall,
-           'mrr': mrr}
+           'mrr': mrr,
+           'ndcg': ndcg}
 TOPN = 10  # length of the recommendation list
 
 # GIVEN_K=1, LOOK_AHEAD=1, STEP=1 corresponds to the classical next-item evaluation

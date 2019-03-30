@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def precision(ground_truth, prediction):
     """
     Compute Precision metric
@@ -42,6 +45,23 @@ def mrr(ground_truth, prediction):
             rr = 1. / (rank + 1)
             break
     return rr
+
+
+def ndcg(ground_truth, prediction):
+    """
+    Compute Normalized Discounted Cumulative Gain metric. Reciprocal Rank is set 0 if no predicted item is in contained the ground truth.
+    :param ground_truth: the ground truth set or sequence
+    :param prediction: the predicted set or sequence
+    :return: the value of the metric
+    """
+    ground_truth = remove_duplicates(ground_truth)
+    prediction = remove_duplicates(prediction)
+    ndcg_score = 0.
+    for rank, p in enumerate(prediction):
+        if p in ground_truth:
+            ndcg_score = 1. / np.log2(rank + 2)
+            break
+    return ndcg_score
 
 
 def count_a_in_b_unique(a, b):
